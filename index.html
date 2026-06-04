@@ -747,7 +747,7 @@ function mkBgMid(){
   }
 
   const bgH=Math.max(window.innerHeight,580);
-  bgMid=cvToMesh(cv,WORLD_W*1.5,bgH,-7,1);bgMid.position.y=28;bgMid_anchorX=0;
+  bgMid=cvToMesh(cv,WORLD_W*1.5,bgH,-10,0);bgMid.position.y=28;bgMid_anchorX=0;
 }
 
 // ── FOREGROUND: edge pipes only — never over characters ──
@@ -938,6 +938,7 @@ async function buildScene(){
   taluyaBaseY=floorY()+tH/2-4;
   spT.mesh.position.set(-260,taluyaBaseY,5);
   spT.mesh.renderOrder=14;
+  spT.mesh.material.transparent=true;
   spT.mesh.material.opacity=1.0;
   spT.mesh.material.color.setRGB(1.12,1.12,1.20);
   SC.add(spT.mesh);
@@ -949,6 +950,7 @@ async function buildScene(){
   m4BaseY=floorY()+m4H/2+10;
   spM4.mesh.position.set(-448,m4BaseY,4.2);
   spM4.mesh.renderOrder=13;
+  spM4.mesh.material.transparent=true;
   spM4.mesh.material.opacity=1.0;
   SC.add(spM4.mesh);
   m4Glow=mkGlowPlane(95,155,245,200);m4Glow.material.opacity=.55;m4Glow.position.set(-448,m4BaseY,4.0);
@@ -991,7 +993,7 @@ function startScene2(){
   if(spT)spT.mesh.position.x=DOOR_X-420; if(spM4)spM4.mesh.position.x=spT.mesh.position.x-160; if(eMesh) eMesh.position.x=spT.mesh.position.x+200;
   // Cinematic intro dialogues
   const sdlg=[
-    {sp:'M4',po:'m4_face',co:'#48d0c4',tx:'Cuidado — detectei sistemas de segurança no corredor.'},
+    {sp:'M4',po:'m4_face',co:'#48d0c4',tx:'Cuidado! Detectei sistemas de segurança no corredor.'},
     {sp:'TALUYA',po:'taluya_face',co:'#c8a4f8',tx:'Entendido. Vou desativar os sensores via painel.'},
     {sp:'ELLIOT',po:'elliot_face',co:'#7ec8f5',tx:'Fiquem atentos. As câmeras fazem varredura.'}
   ];
@@ -1009,8 +1011,11 @@ async function mkScene3(){
   }
   scene3BoseiGroup=new THREE.Group();scene3BoseiGroup.visible=false;
   const spBosei=await mkSprite(A.bosei,170);
+  spBosei.mesh.material.transparent=true;
+  spBosei.mesh.material.opacity=1.0;
+  spBosei.mesh.renderOrder=15;
   scene3BoseiGroup.add(spBosei.mesh);
-  scene3BoseiGroup.position.set(scene3AnomalyX,floorY()+80,2.5);scene3Group.add(scene3BoseiGroup);
+  scene3BoseiGroup.position.set(scene3AnomalyX,floorY()+140,5.5);scene3Group.add(scene3BoseiGroup);
   scene3BoseiShadow=mkShadowPlane(108);scene3BoseiShadow.material.opacity=0;scene3BoseiShadow.position.set(scene3AnomalyX,floorY()+24,0.7);
   scene3DoorGroup=new THREE.Group();scene3DoorGroup.visible=false;
   const doorBase=new THREE.Mesh(new THREE.PlaneGeometry(200,300),new THREE.MeshBasicMaterial({color:0x08121f,transparent:true,opacity:0.95}));scene3DoorGroup.add(doorBase);
@@ -1021,7 +1026,7 @@ async function mkScene3(){
   const frameR=frameL.clone();frameR.position.x=92;scene3DoorGroup.add(frameR);
   scene3DoorPanels=[doorFace,glowStrip,frameL,frameR];scene3DoorLight=glowStrip;
   scene3DoorGroup.position.set(scene3DoorX,floorY()+156,2.0);scene3Group.add(scene3DoorGroup);
-  scene3BoseiGlow=mkGlowPlane(120,220,255,160);scene3BoseiGlow.material.opacity=0;scene3BoseiGlow.position.set(scene3AnomalyX,floorY()+90,2.2);
+  scene3BoseiGlow=mkGlowPlane(120,220,255,180);scene3BoseiGlow.material.opacity=0;scene3BoseiGlow.position.set(scene3AnomalyX,floorY()+150,5.3);
 }
 
 function startScene3(){
@@ -1283,6 +1288,10 @@ function update(dt){
   if(STATE==='elliot_entry')animElliotEntry(dt);
   if(STATE==='entry_dlg')   animElliotEntry(dt);
   if(elliotEntryPhase===3)  followElliot(dt);
+  // Force character opacity to max (kill transparency bugs)
+  if(spT)spT.mesh.material.opacity=1.0;
+  if(spM4)spM4.mesh.material.opacity=1.0;
+  if(eMesh)eMesh.material.opacity=1.0;
   if(STATE==='door_opening'||STATE==='elliot_entry'||STATE==='entry_dlg')return;
   if(STATE!=='exploring'&&STATE!=='t_near'&&STATE!=='scene2_explore'&&!scene3Active)return;
   const dir=getDir();
