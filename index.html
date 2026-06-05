@@ -1293,76 +1293,354 @@ function followM4(dt){
   if(!spM4||!spT)return;
   const tgt=spT.mesh.position.x-175*facing,df=tgt-spM4.mesh.position.x;
   m4VelX=(m4VelX+df*0.032)*0.86;spM4.mesh.position.x+=m4VelX;
-  const fd=facing>0?1:-1;if(Math.sign(spM4.mesh.scale.x)!==fd)spM4.mesh.scale.x=fd*Math.abs(spM4.mesh.scale.x);
 }
 
-// Elliot follower — full opacity enforced every frame
+// ═══════════════════════════════════════
+// Elliot follower
+// stable version
+// ═══════════════════════════════════════
+
 function followElliot(dt){
-  if(!eMesh||elliotEntryPhase!==3)return;
-  const tgt=spT.mesh.position.x+200*facing,df=tgt-eMesh.position.x;
-  eVelX=(eVelX+df*0.028)*0.86;eMesh.position.x+=eVelX;
-  const isMoving=Math.abs(eVelX)>0.6;
-  const fd=facing>0?1:-1;if(Math.sign(eMesh.scale.x)!==fd)eMesh.scale.x=fd*Math.abs(eMesh.scale.x);
-  if(isMoving){
-    eWalkCycle+=dt*9;
-    const bob=Math.sin(eWalkCycle)*5.2,bobA=Math.abs(Math.sin(eWalkCycle));
-    eMesh.position.y=eBaseY+bob;eMesh.scale.y=1-bobA*0.024;eMesh.rotation.z=-facing*0.036;
-  } else {
-    eWalkCycle+=dt*1.5;
-    eMesh.position.y=eBaseY+Math.sin(animT*.96)*1.7;eMesh.scale.y=1;eMesh.rotation.z=0;
+
+  if(!eMesh || elliotEntryPhase!==3)return;
+
+  const targetX =
+      spT.mesh.position.x +
+      200*facing;
+
+  const diff =
+      targetX -
+      eMesh.position.x;
+
+  // smoother follow
+
+  eVelX =
+      (eVelX + diff*0.020)
+      *0.88;
+
+  eMesh.position.x += eVelX;
+
+  const moving =
+      Math.abs(eVelX)>0.8;
+
+  // LOCK orientation permanently
+
+  eMesh.scale.x =
+      -Math.abs(
+        eMesh.scale.x
+      );
+
+  if(moving){
+
+      eWalkCycle += dt*6;
+
+      const bob =
+          Math.sin(
+            eWalkCycle
+          )*2.0;
+
+      eMesh.position.y =
+          eBaseY +
+          bob;
+
   }
-  // Hard guarantee: colour fully white, opacity 1
-  eMesh.material.color.setRGB(1.12,1.14,1.22);eMesh.material.opacity=1.0;
-  if(eGlow){eGlow.position.x=eMesh.position.x;eGlow.position.y=eMesh.position.y;eGlow.material.opacity=.72;}
-  if(eShadow){eShadow.position.x=eMesh.position.x;eShadow.material.opacity=.68;}
+
+  else{
+
+      eMesh.position.y =
+          eBaseY;
+
+  }
+
+  // force transforms
+
+  eMesh.scale.y = 1;
+
+  eMesh.rotation.set(
+      0,
+      0,
+      0
+  );
+
+  // force material
+
+  eMesh.material.color.setRGB(
+      1.12,
+      1.14,
+      1.22
+  );
+
+  eMesh.material.opacity=1;
+
+  // glow sync
+
+  if(eGlow){
+
+      eGlow.position.set(
+
+         eMesh.position.x,
+
+         eMesh.position.y,
+
+         4.6
+
+      );
+
+      eGlow.material.opacity=.72;
+
+  }
+
+  // shadow sync
+
+  if(eShadow){
+
+      eShadow.position.set(
+
+         eMesh.position.x,
+
+         floorY()-3,
+
+         0.7
+
+      );
+
+      eShadow.material.opacity=.68;
+
+  }
+
 }
 
-// Elliot cinematic entry — arrives at position to Taluya's right
-const ELLIOT_ARRIVE_X = 230;
+
+
+// ═══════════════════════════════════════
+// Elliot cinematic entry
+// stable version
+// ═══════════════════════════════════════
+
+const ELLIOT_ARRIVE_X =
+DOOR_X + 65;
+
 function animElliotEntry(dt){
-  if(!eMesh||elliotEntryPhase===0)return;
-  eEntryT+=dt;
-  if(elliotEntryPhase===1){
-    const tn=Math.min(eEntryT/.88,1);
-    const bright=0.82+tn*0.12;
-    eMesh.material.color.setRGB(bright,bright,bright);
-    eMesh.material.opacity=1.0;
-    if(eGlow){eGlow.material.opacity=0.12;}
-    if(eShadow){eShadow.material.opacity=.42+tn*.05;}
-    if(eEntryT>=.88){elliotEntryPhase=2;eEntryT=0;}
+
+  if(
+      !eMesh ||
+      elliotEntryPhase===0
+  ) return;
+
+  eEntryT += dt;
+
+  if(
+      elliotEntryPhase===1
+  ){
+
+      const reveal =
+      Math.min(
+         eEntryT/.88,
+         1
+      );
+
+      const bright =
+          .82 +
+          reveal*.12;
+
+      eMesh.material.color.setRGB(
+
+          bright,
+
+          bright,
+
+          bright
+
+      );
+
+      eMesh.material.opacity=1;
+
+      // FORCE POSITION
+
+      eMesh.position.x =
+          ELLIOT_ARRIVE_X;
+
+      eMesh.position.y =
+          eBaseY;
+
+      // FORCE TRANSFORMS
+
+      eMesh.scale.set(
+
+          -Math.abs(
+             eMesh.scale.x
+          ),
+
+          1,
+
+          1
+
+      );
+
+      eMesh.rotation.set(
+          0,
+          0,
+          0
+      );
+
+      if(eGlow){
+
+          eGlow.position.set(
+
+              eMesh.position.x,
+
+              eMesh.position.y,
+
+              4.6
+
+          );
+
+          eGlow.material.opacity=.12;
+
+      }
+
+      if(eShadow){
+
+          eShadow.position.set(
+
+             eMesh.position.x,
+
+             floorY()-3,
+
+             0.7
+
+          );
+
+      }
+
+      if(eEntryT>=.88){
+
+          elliotEntryPhase=3;
+
+          STATE='entry_dlg';
+
+          closeDoors();
+
+          camTXVel+=5;
+
+          dlgPlay(
+
+            DLG.door,
+
+            ()=>{
+
+              STATE='done';
+
+              playSfx(
+                 'success',
+                 0.4
+              );
+
+              showObj(
+                 'Equipe reunida. Próximo objetivo: câmeras de segurança.'
+              );
+
+              setTimeout(
+
+                 ()=>startScene2(),
+
+                 420
+
+              );
+
+            }
+
+          );
+
+      }
+
   }
-  if(elliotEntryPhase===2){
-    const df=ELLIOT_ARRIVE_X-eMesh.position.x;
-    if(Math.abs(df)>2.5){
-      eMesh.position.x+=df*.038;
-      const wt=eEntryT*7.8;
-      eMesh.position.y=eBaseY+Math.sin(wt)*1.8;eMesh.scale.y=1-Math.abs(Math.sin(wt))*0.025;
-      const rev=Math.min(eEntryT/1.5,1),c=0.96+rev*.04;
-      eMesh.material.color.setRGB(0.92,0.94,1.0);eMesh.material.opacity=1.0;
-      if(eGlow){eGlow.material.opacity=.18+rev*.08;eGlow.position.x=eMesh.position.x;eGlow.position.y=eMesh.position.y;}
-      if(eShadow){eShadow.material.opacity=.56+rev*.12;eShadow.position.x=eMesh.position.x;}
-    } else {
-      // Arrived — hard reset to full visibility
-      eMesh.position.x=ELLIOT_ARRIVE_X;
-      eMesh.material.color.setRGB(1.12,1.14,1.22);eMesh.material.opacity=1.0;
-      eMesh.position.y=eBaseY;eMesh.scale.y=1;eMesh.rotation.z=0;
-      if(eGlow){eGlow.material.opacity=.72;eGlow.position.x=eMesh.position.x;eGlow.position.y=eMesh.position.y;}
-      if(eShadow){eShadow.material.opacity=.52;eShadow.position.x=eMesh.position.x;}
-      elliotEntryPhase=3;STATE='entry_dlg';closeDoors();camTXVel+=5;
-      dlgPlay(DLG.door,()=>{STATE='done';playSfx('success',0.4);showObj('Equipe reunida. Próximo objetivo: câmeras de segurança.');setTimeout(()=>startScene2(),420);});
-    }
-  }
+
 }
+
+
 
 function animLights(dt){
-  ambLights.forEach(l=>{l.phase+=dt*l.spd;l.light.intensity=l.baseI*(0.84+Math.sin(l.phase)*0.16);});
+
+  ambLights.forEach(
+
+    l=>{
+
+      l.phase +=
+        dt*l.spd;
+
+      l.light.intensity=
+
+        l.baseI *
+
+        (
+
+          .84 +
+
+          Math.sin(
+             l.phase
+          )*.16
+
+        );
+
+    }
+
+  );
+
 }
+
+
+
 function tickParticles(dt){
-  [pts,pts2].forEach(p=>{
-    if(!p)return;const pos=p.geometry.attributes.position.array,vel=p._vel;
-    for(let i=0;i<pos.length;i+=3){pos[i+1]+=dt*vel[i/3];if(pos[i+1]>320)pos[i+1]=-320;}
-    p.geometry.attributes.position.needsUpdate=true;
-  });
+
+  [pts,pts2].forEach(
+
+    p=>{
+
+      if(!p)return;
+
+      const pos=
+
+        p.geometry
+        .attributes
+        .position
+        .array;
+
+      const vel=p._vel;
+
+      for(
+
+        let i=0;
+
+        i<pos.length;
+
+        i+=3
+
+      ){
+
+        pos[i+1]+=
+          dt*
+          vel[i/3];
+
+        if(
+          pos[i+1]>320
+        ){
+
+          pos[i+1]=-320;
+
+        }
+
+      }
+
+      p.geometry
+      .attributes
+      .position
+      .needsUpdate=true;
+
+    }
+
+  );
+
 }
 
 // ══ DOOR ══════════════════════════════════════════════════════════════

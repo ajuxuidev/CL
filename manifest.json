@@ -1,7 +1,7 @@
 {
   "name": "Os Clãs da Lua",
   "short_name": "Clãs da Lua",
-  "start_url": "./iconjogo.png",
+  "start_url": "iconjogo.png",
   "display": "standalone",
   "background_color": "#020617",
   "theme_color": "#020617",
