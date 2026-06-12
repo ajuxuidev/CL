@@ -88,8 +88,8 @@ href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=
 rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html,body{width:100%;height:100%;overflow:hidden;background:#020308;font-family:'Exo 2',sans-serif;color:#e6eeff;user-select:none;-webkit-user-select:none;touch-action:none;-webkit-touch-callout:none;-webkit-user-select:none;-webkit-text-size-adjust:100%;margin:0;padding:0}
-#gc{display:block;position:fixed;top:0;left:0;width:100%;height:100%}
+html,body{width:100%;height:100dvh;overflow:hidden;background:#020308;font-family:'Exo 2',sans-serif;color:#e6eeff;user-select:none;-webkit-user-select:none;touch-action:none;-webkit-touch-callout:none;-webkit-user-select:none;-webkit-text-size-adjust:100%;margin:0;padding:0}
+#gc{display:block; position:fixed; inset:0; width:100vw; height:100dvh;}
 #sl{position:fixed;inset:0;z-index:5;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,.028) 0px,rgba(0,0,0,.028) 1px,transparent 1px,transparent 3px)}
 #vg{position:fixed;inset:0;z-index:6;pointer-events:none;background:radial-gradient(ellipse at 50% 50%,transparent 48%,rgba(0,0,10,.75) 100%)}
 #fo{position:fixed;inset:0;z-index:50;background:#000;opacity:0;pointer-events:none;transition:opacity .6s ease}
@@ -393,6 +393,105 @@ pointer-events:none;transition:transform .04s}
 #ef.fl{opacity:1}
 /* KEYBOARD HINT */
 #kh{position:fixed;bottom:clamp(12px,2vw,16px);right:clamp(12px,2vw,16px);font-family:'Orbitron',monospace;font-size:clamp(8px,1.5vw,10px);letter-spacing:.14em;color:rgba(65,105,190,.46);pointer-events:none;z-index:20;text-align:right;line-height:1.9;display:none}@media(max-width:1024px){#kh{display:none}}.td #kh{display:none}
+
+#artifactCard{
+
+position:fixed;
+inset:0;
+
+display:flex;
+align-items:center;
+justify-content:center;
+
+background:rgba(0,0,0,.82);
+
+opacity:0;
+pointer-events:none;
+
+transition:.45s;
+
+z-index:99999;
+
+}
+
+#artifactCard.show{
+
+opacity:1;
+
+}
+
+.artifactBox{
+
+width:420px;
+max-width:90vw;
+
+padding:30px;
+
+border-radius:24px;
+
+background:
+linear-gradient(
+180deg,
+rgba(18,25,58,.96),
+rgba(6,10,25,.96)
+);
+
+border:
+2px solid
+rgba(120,220,255,.55);
+
+text-align:center;
+
+box-shadow:
+0 0 60px
+rgba(120,220,255,.25);
+
+}
+
+.artifactBox img{
+
+width:140px;
+
+animation:
+artifactFloat 2s infinite ease-in-out;
+
+}
+
+.artifactBox h2{
+
+margin-top:12px;
+
+font-size:30px;
+
+color:white;
+
+}
+
+.artifactBox p{
+
+color:#9fd8ff;
+
+margin-top:8px;
+
+}
+
+@keyframes artifactFloat{
+
+0%,100%{
+
+transform:
+translateY(0px);
+
+}
+
+50%{
+
+transform:
+translateY(-10px);
+
+}
+
+}
 </style>
 </head>
 <body>
@@ -485,6 +584,23 @@ pointer-events:none;transition:transform .04s}
 
 <div id="jw"><div class="jb"><div class="jk"></div></div></div>
 <div id="kh">A / D &nbsp;·&nbsp; ← → &nbsp; MOVER<br>E / F &nbsp;·&nbsp; INTERAGIR<br>ESPAÇO &nbsp;·&nbsp; AVANÇAR DIÁLOGO</div>
+
+<div id="artifactCard">
+
+  <div class="artifactBox">
+
+    <img
+      id="artifactImg"
+      src=""
+    >
+
+    <h2>Bastão da Bosei</h2>
+
+    <p>Artefato da Promessa Lunar</p>
+
+  </div>
+
+</div>
 
 <script type="module">
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js';
@@ -647,20 +763,63 @@ let holoCanvas=null,holoCtx=null,holoTex=null,holoMesh=null;
 // ══ AUDIO SYSTEM ═══════════════════════════════════════════════════════════
 let audioContext=null, audioLoaded=false, audioInitialized=false, musicPlaying=false, musicSource=null;
 const AUDIO={
-  // Ambient: sci-fi space meditation
-  ambience: 'https://cdn.pixabay.com/download/audio/2021/08/11/audio_1ba7e64851.mp3',
-  // UI sounds: beeps, clicks, errors
-  terminal: 'https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3',
-  success: 'https://assets.mixkit.co/active_storage/sfx/2877/2877-preview.mp3',
-  error: 'https://assets.mixkit.co/active_storage/sfx/2798/2798-preview.mp3',
-  // Device sounds
-  camera: 'https://assets.mixkit.co/active_storage/sfx/2850/2850-preview.mp3',
-  door: 'https://assets.mixkit.co/active_storage/sfx/2916/2916-preview.mp3',
-  energy: 'https://assets.mixkit.co/active_storage/sfx/2888/2888-preview.mp3',
-  click: 'https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3',
-  wire: 'https://assets.mixkit.co/active_storage/sfx/2811/2811-preview.mp3',
-  staff: 'https://assets.mixkit.co/active_storage/sfx/2887/2887-preview.mp3',
-  ending: 'https://assets.mixkit.co/active_storage/sfx/2884/2884-preview.mp3'
+
+// Música principal explorando laboratório lunar
+ambience:
+'https://cdn.pixabay.com/download/audio/2022/03/15/audio_5c4d00118e.mp3',
+
+// Terminal / UI
+
+terminal:
+'https://assets.mixkit.co/active_storage/sfx/1114/1114-preview.mp3',
+
+success:
+'https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3',
+
+error:
+'https://assets.mixkit.co/active_storage/sfx/1427/1427-preview.mp3',
+
+click:
+'https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3',
+
+wire:
+'https://assets.mixkit.co/active_storage/sfx/2573/2573-preview.mp3',
+
+// Personagens andando
+
+footstep:
+'https://assets.mixkit.co/active_storage/sfx/2580/2580-preview.mp3',
+
+// Segurança / tecnologia
+
+camera:
+'https://assets.mixkit.co/active_storage/sfx/2867/2867-preview.mp3',
+
+scan:
+'https://assets.mixkit.co/active_storage/sfx/2206/2206-preview.mp3',
+
+door:
+'https://assets.mixkit.co/active_storage/sfx/2956/2956-preview.mp3',
+
+energy:
+'https://assets.mixkit.co/active_storage/sfx/2870/2870-preview.mp3',
+
+// Bosei / anomalia
+
+staff:
+'https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3',
+
+anomaly:
+'https://assets.mixkit.co/active_storage/sfx/2018/2018-preview.mp3',
+
+// Final
+
+ending:
+'https://assets.mixkit.co/active_storage/sfx/2020/2020-preview.mp3',
+
+finalHit:
+'https://assets.mixkit.co/active_storage/sfx/2218/2218-preview.mp3'
+
 };
 let audioCache={};
 let musicGain=null, masterGain=null;
@@ -1726,7 +1885,8 @@ scene3BoseiGroup.position.x;}
 function revealAnomaly(){
   if(scene3Stage!=='scene3_search')return;
   playSfx('staff',0.6);
-  hideInteract();scene3Stage='scene3_reveal';scene3BoseiGroup.visible=true;scene3DoorGroup.visible=true;scene3BoseiShadow.material.opacity=0.26;
+  hideInteract();scene3Stage='scene3_reveal';showArtifactCard();
+return;scene3BoseiShadow.material.opacity=0.26;
   showObj('O bastão está se materializando.');
   dlgPlay([
     {sp:'ELLIOT',po:'elliot_face',co:'#7ec8f5',tx:'Pela Gravidade...'},
@@ -2458,6 +2618,54 @@ if('serviceWorker' in navigator){
 navigator.serviceWorker.register(
 './sw.js'
 );
+}
+
+//pop up bastão
+
+function showArtifactCard(){
+
+const card =
+document.getElementById(
+'artifactCard'
+);
+
+const img =
+document.getElementById(
+'artifactImg'
+);
+
+img.src =
+A.bosei;
+
+card.classList.add(
+'show'
+);
+
+playSfx(
+'staff',
+0.8
+);
+
+setTimeout(()=>{
+
+card.classList.remove(
+'show'
+);
+
+scene3BoseiGroup.visible=true;
+
+scene3DoorGroup.visible=true;
+
+scene3BoseiShadow.material.opacity=0.26;
+
+scene3Stage='scene3_approach';
+
+showObj(
+'Aproxime-se do bastão da Bosei.'
+);
+
+},2500);
+
 }
 </script>
 </body>

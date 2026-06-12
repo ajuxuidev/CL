@@ -1,21 +1,34 @@
 {
   "name": "Os Clãs da Lua",
   "short_name": "Clãs da Lua",
-  "start_url": "iconjogo.png",
+
+  "start_url": "./",
+
+  "scope": "./",
+
   "display": "standalone",
+
   "background_color": "#020617",
   "theme_color": "#020617",
+
   "orientation": "landscape",
+
   "icons": [
     {
-      "src": "assets/icon-192.png",
+      "src": "assets/iconjogo.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "assets/icon-512.png",
+      "src": "assets/iconjogo.png",
       "sizes": "512x512",
       "type": "image/png"
+    },
+    {
+      "src": "assets/iconjogo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
     }
   ]
 }
